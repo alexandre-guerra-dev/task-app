@@ -1,4 +1,4 @@
-namespace Api.Src.Tasks.Domain.Enums;
+namespace Api.Src.Domain.Enums;
 
 public enum TaskStatusEnum
 {

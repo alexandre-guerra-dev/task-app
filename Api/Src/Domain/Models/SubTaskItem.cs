@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Api.Src.Tasks.Domain.Enums;
+using Api.Src.Domain.Enums;
 
-namespace Api.Src.Tasks.Domain.Models;
+namespace Api.Src.Domain.Models;
 
 public class SubTaskItem
 {
@@ -24,7 +24,7 @@ public class SubTaskItem
         Id = new();
         Title = title;
         Description = description;
-        Status = TaskStatus.Todo;
+        Status = TaskStatusEnum.Todo;
         CreatedAt = DateTime.Now;
         DueDate = dueDate;
         TaskItemParentId = taskItemParentId;
