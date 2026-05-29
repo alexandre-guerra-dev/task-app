@@ -10,7 +10,7 @@ namespace Api.Src.Infraestructure.Repositories;
 
 public class TaskItemRepository
 {
-    private AppDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
     public TaskItemRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
