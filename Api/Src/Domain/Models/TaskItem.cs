@@ -19,6 +19,7 @@ public class TaskItem
 
     // Navigation Properties
     // TODO public Guid OwnerId { get; private set; }
+    // TODO: Implementar lista de sub tarefas apenas de leitura e métodos de adição, que verifique se a tarefa está concluída e refleta na sub tarefa, e remoção
     public List<SubTaskItem> SubTaskItems { get; private set; } = [];
 
     public TaskItem(string title, string? description, DateTime? dueDate)

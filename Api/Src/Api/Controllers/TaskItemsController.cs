@@ -44,8 +44,19 @@ public class TaskItemsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { taskId = taskItem.Id}, taskItem);
     }
 
+    [HttpPost("{taskId:guid}/sub-task-items")]
+    public async Task<IActionResult> CreateSubTaskItem([FromRoute] Guid taskId, [FromBody] CreateTaskItemRequestDto createDto)
+    {
+        var subTaskItem = await _taskItemService.CreateSubTaskItemAsync(taskId, createDto);
+
+        if (subTaskItem is null)
+            return NotFound("Task Item Not Found.");
+
+        return Ok(subTaskItem);
+    }
+
     [HttpPut("{taskId:guid}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid taskId, [FromBody] UpdateTaskItemRequestDto updateDto)
+    public async Task<IActionResult> Update([FromRoute] Guid taskId, [FromBody] UpdateTaskItemRequestDto updateDto)
     {
         var task = await _taskItemService.UpdateAsync(taskId, updateDto);
 
@@ -55,6 +66,17 @@ public class TaskItemsController : ControllerBase
         return Ok(task);
     }
 
+    [HttpPut("{taskId:guid}/sub-task-items/{subTaskId:guid}")]
+    public async Task<IActionResult> UpdateSubTaskItem([FromRoute] Guid taskId, [FromRoute] Guid subTaskId, [FromBody] UpdateTaskItemRequestDto updateDto)
+    {
+        var subTask = await _taskItemService.UpdateSubTaskItemAsync(taskId, subTaskId, updateDto);
+
+        if (subTask is null)
+            return NotFound("Task or Sub Task Item Not Found.");
+        
+        return Ok(subTask);
+    }
+
     [HttpDelete("{taskId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid taskId)
     {
@@ -62,6 +84,17 @@ public class TaskItemsController : ControllerBase
 
         if (!succeed)
             return NotFound("Task Item Not Found.");
+        
+        return NoContent();
+    }
+
+    [HttpDelete("{taskId:guid}/sub-task-items/{subTaskId:guid}")]
+    public async Task<IActionResult> DeleteSubTaskItem([FromRoute] Guid taskId, [FromRoute] Guid subTaskId)
+    {
+        var succeed = await _taskItemService.DeleteSubTaskItemAsync(taskId, subTaskId);
+
+        if (!succeed)
+            return NotFound("Task or Sub Task Item Not Found.");
         
         return NoContent();
     }

@@ -7,7 +7,7 @@ using Api.Src.Domain.Models;
 
 namespace Api.Src.Application.Dtos;
 
-public record TaskItemResponseDto
+public record SubTaskItemResponseDto
 (
     Guid Id,
     string Title,
@@ -15,6 +15,5 @@ public record TaskItemResponseDto
     TaskStatusEnum Status,
     DateTime CreatedAt,
     DateTime? DueDate,
-    DateTime? CompletedAt,
-    IEnumerable<SubTaskItemResponseDto> SubTaskItems
+    DateTime? CompletedAt
 );
