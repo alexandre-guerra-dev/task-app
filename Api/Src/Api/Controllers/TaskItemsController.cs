@@ -44,6 +44,17 @@ public class TaskItemsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { taskId = taskItem.Id}, taskItem);
     }
 
+    [HttpPut("{taskId:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid taskId, [FromBody] UpdateTaskItemRequestDto updateDto)
+    {
+        var task = await _taskItemService.UpdateAsync(taskId, updateDto);
+
+        if (task is null)
+            return NotFound("Task Item Not Found.");
+        
+        return Ok(task);
+    }
+
     [HttpDelete("{taskId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid taskId)
     {

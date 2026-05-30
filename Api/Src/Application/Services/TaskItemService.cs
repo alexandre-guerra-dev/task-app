@@ -39,6 +39,23 @@ public class TaskItemService
         return taskItem.ToResponseDto();
     }
 
+    public async Task<TaskItemResponseDto?> UpdateAsync(Guid taskId, UpdateTaskItemRequestDto updateDto)
+    {
+        var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
+
+        if (taskItem is null)
+            return null;
+        
+        taskItem.SetTitle(updateDto.Title);
+        taskItem.SetDescription(updateDto.Description);
+        taskItem.SetDueDate(updateDto.DueDate);
+        taskItem.ChangeStatus(updateDto.Status);
+
+        await _taskItemRepository.SaveChangesAsync();
+
+        return taskItem.ToResponseDto();
+    }
+
     public async Task<bool> DeleteAsync(Guid taskId)
     {
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
