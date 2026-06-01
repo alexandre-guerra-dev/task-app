@@ -1,15 +1,39 @@
 using Api.Src.Application.Services;
 using Api.Src.Infraestructure.Database;
+using Api.Src.Infraestructure.Identity;
 using Api.Src.Infraestructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var databasePath = builder.Configuration["Database:Path"];
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(databasePath));
-builder.Services.AddScoped<TaskItemRepository>();
+builder.Services.AddDbContext<AppDbContext>(options => 
+    options.UseSqlite(databasePath));
 
-builder.Services.AddScoped<TaskItemService>();
+builder.Services
+    .AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequiredUniqueChars = 0;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services
+    .AddAuthentication()
+    .AddCookie();
+
+builder.Services.AddAuthorization();
+
+builder.Services
+    .AddScoped<TaskItemRepository>()
+    .AddScoped<TaskItemService>();
 
 builder.Services.AddControllers();
 
@@ -25,6 +49,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
