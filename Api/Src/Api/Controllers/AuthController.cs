@@ -52,7 +52,7 @@ public class AuthController : ControllerBase
         );
 
         if (!result.Succeeded)
-            return Forbid("Email or Password incorrect.");
+            return Unauthorized("Email or Password incorrect.");
 
         return NoContent();
     }
