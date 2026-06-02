@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Domain.Enums;
+using Api.Src.Infraestructure.Identity;
 
 namespace Api.Src.Domain.Models;
 
@@ -18,11 +19,13 @@ public class TaskItem
     public DateTime? CompletedAt { get; private set; }
 
     // Navigation Properties
-    // TODO public Guid OwnerId { get; private set; }
+    public Guid OwnerId { get; private set; }
+    public AppUser? Owner { get; private set; }
+
     // TODO: Implementar lista de sub tarefas apenas de leitura e métodos de adição, que verifique se a tarefa está concluída e refleta na sub tarefa, e remoção
     public List<SubTaskItem> SubTaskItems { get; private set; } = [];
 
-    public TaskItem(string title, string? description, DateTime? dueDate)
+    public TaskItem(string title, string? description, DateTime? dueDate, Guid ownerId)
     {
         Id = new();
         Title = title;
@@ -30,19 +33,58 @@ public class TaskItem
         Status = TaskStatusEnum.Todo;
         CreatedAt = DateTime.Now;
         DueDate = dueDate;
+        OwnerId = ownerId;
     }
 
-    public void SetTitle(string newTitle)
+    public bool Update(
+        string newTitle,
+        string? newDescription,
+        TaskStatusEnum newStatus,
+        DateTime? newDueDate,
+        Guid userId
+    )
     {
-        if (newTitle.Length < 3)
-            throw new Exception("O novo título possui menos de 3 caracteres.");
+        if (!IsAuthorized(userId))
+            return false;
 
-        Title = newTitle;
+        if (!SetTitle(newTitle))
+            return false;
+
+        SetDescription(newDescription);
+        ChangeStatus(newStatus);
+        SetDueDate(newDueDate);
+
+        return true;
     }
 
-    public void SetDescription(string? newDescription) => Description = newDescription;
+    public SubTaskItem? UpdateSubTask(
+        Guid subTaskId,
+        string newTitle,
+        string? newDescription,
+        TaskStatusEnum newStatus,
+        DateTime? newDueDate,
+        Guid userId
+    )
+    {
+        if (!IsAuthorized(userId))
+            return null;
 
-    public void ChangeStatus(TaskStatusEnum newStatus)
+        var subTask = SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
+
+        if (subTask is null)
+            return null;
+
+        subTask.Update(
+            newTitle,
+            newDescription,
+            newStatus,
+            newDueDate
+        );
+
+        return subTask;
+    }
+
+    private bool ChangeStatus(TaskStatusEnum newStatus)
     {
         Status = newStatus;
         CompletedAt = null;
@@ -52,7 +94,34 @@ public class TaskItem
             CompletedAt = DateTime.Now;
             foreach (var subTask in SubTaskItems) subTask.ChangeStatus(TaskStatusEnum.Complete);
         }
+
+        return true;
     }
 
-    public void SetDueDate(DateTime? newDueDate) => DueDate = newDueDate;
+    private bool SetTitle(string newTitle)
+    {
+        if (newTitle.Length < 3)
+            return false;
+
+        Title = newTitle;
+
+        return true;
+    }
+
+    private bool SetDescription(string? newDescription)
+    {
+        Description = newDescription;
+
+        return true;
+    }
+
+
+    private bool SetDueDate(DateTime? newDueDate)
+    {
+        DueDate = newDueDate;
+
+        return true;
+    }
+
+    public bool IsAuthorized(Guid userId) => userId == OwnerId;
 }

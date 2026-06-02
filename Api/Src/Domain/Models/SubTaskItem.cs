@@ -30,24 +30,55 @@ public class SubTaskItem
         TaskItemParentId = taskItemParentId;
     }
 
-    public void SetTitle(string newTitle)
+    public bool Update(
+        string newTitle,
+        string? newDescription,
+        TaskStatusEnum newStatus,
+        DateTime? newDueDate
+    )
     {
-        if (newTitle.Length < 3)
-            throw new Exception("O novo título possui menos de 3 caracteres.");
+        if (!SetTitle(newTitle))
+            return false;
+        
+        SetDescription(newDescription);
+        ChangeStatus(newStatus);
+        SetDueDate(newDueDate);
 
-        Title = newTitle;
+        return true;
     }
 
-    public void SetDescription(string? newDescription) => Description = newDescription;
+    private bool SetTitle(string newTitle)
+    {
+        if (newTitle.Length < 3)
+            return false;
 
-    public void ChangeStatus(TaskStatusEnum newStatus)
+        Title = newTitle;
+
+        return true;
+    }
+
+    private bool SetDescription(string? newDescription)
+    {
+        Description = newDescription;
+
+        return true;
+    }
+
+    public bool ChangeStatus(TaskStatusEnum newStatus)
     {
         Status = newStatus;
         CompletedAt = null;
 
         if (newStatus == TaskStatusEnum.Complete)
             CompletedAt = DateTime.Now;
+
+        return true;
     }
 
-    public void SetDueDate(DateTime? newDueDate) => DueDate = newDueDate;
+    private bool SetDueDate(DateTime? newDueDate)
+    {
+        DueDate = newDueDate;
+
+        return true;
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Application.Dtos;
+using Api.Src.Application.Interfaces;
 using Api.Src.Application.Mappers;
 using Api.Src.Domain.Models;
 using Api.Src.Infraestructure.Repositories;
@@ -12,10 +13,12 @@ namespace Api.Src.Application.Services;
 public class TaskItemService
 {
     private readonly TaskItemRepository _taskItemRepository;
+    private readonly IUserContext _userContext;
 
-    public TaskItemService(TaskItemRepository taskItemRepository)
+    public TaskItemService(TaskItemRepository taskItemRepository, IUserContext userContext)
     {
         _taskItemRepository = taskItemRepository;
+        _userContext = userContext;
     }
 
     public async Task<TaskItemResponseDto?> GetByIdAsync(Guid taskId)
@@ -32,7 +35,9 @@ public class TaskItemService
 
     public async Task<TaskItemResponseDto> CreateAsync(CreateTaskItemRequestDto createDto)
     {
-        TaskItem taskItem = new(createDto.Title, createDto.Description, createDto.DueDate);
+        var userId = _userContext.CurrentUserId;
+
+        TaskItem taskItem = new(createDto.Title, createDto.Description, createDto.DueDate, userId);
 
         await _taskItemRepository.SaveNewTaskItemAsync(taskItem);
 
@@ -57,15 +62,20 @@ public class TaskItemService
 
     public async Task<TaskItemResponseDto?> UpdateAsync(Guid taskId, UpdateTaskItemRequestDto updateDto)
     {
+        var userId = _userContext.CurrentUserId;
+
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
             return null;
         
-        taskItem.SetTitle(updateDto.Title);
-        taskItem.SetDescription(updateDto.Description);
-        taskItem.SetDueDate(updateDto.DueDate);
-        taskItem.ChangeStatus(updateDto.Status);
+        taskItem.Update(
+            updateDto.Title,
+            updateDto.Description,
+            updateDto.Status,
+            updateDto.DueDate,
+            userId
+        );
 
         await _taskItemRepository.SaveChangesAsync();
 
@@ -74,20 +84,24 @@ public class TaskItemService
 
     public async Task<SubTaskItemResponseDto?> UpdateSubTaskItemAsync(Guid taskId, Guid subTaskId, UpdateTaskItemRequestDto updateDto)
     {
+        var userId = _userContext.CurrentUserId;
+        
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
             return null;
 
-        var subTaskItem = taskItem.SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
+        var subTaskItem = taskItem.UpdateSubTask(
+            subTaskId,
+            updateDto.Title,
+            updateDto.Description,
+            updateDto.Status,
+            updateDto.DueDate,
+            userId
+        );
 
         if (subTaskItem is null)
             return null;
-
-        subTaskItem.SetTitle(updateDto.Title);
-        subTaskItem.SetDescription(updateDto.Description);
-        subTaskItem.SetDueDate(updateDto.DueDate);
-        subTaskItem.ChangeStatus(updateDto.Status);
 
         await _taskItemRepository.SaveChangesAsync();
 

@@ -1,3 +1,5 @@
+using Api.Src.Api.Services;
+using Api.Src.Application.Interfaces;
 using Api.Src.Application.Services;
 using Api.Src.Infraestructure.Database;
 using Api.Src.Infraestructure.Identity;
@@ -34,6 +36,8 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddScoped<TaskItemRepository>()
     .AddScoped<TaskItemService>();
+
+builder.Services.AddScoped<IUserContext, UserContext>();
 
 builder.Services.AddControllers();
 
