@@ -51,6 +51,9 @@ public class TaskItemService
         if (taskItem is null)
             return null;
 
+        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
+            return null;
+
         SubTaskItem subTaskItem = new(createDto.Title, createDto.Description, createDto.DueDate, taskId);
 
         taskItem.SubTaskItems.Add(subTaskItem);
@@ -69,13 +72,16 @@ public class TaskItemService
         if (taskItem is null)
             return null;
         
-        taskItem.Update(
+        var succeed = taskItem.Update(
             updateDto.Title,
             updateDto.Description,
             updateDto.Status,
             updateDto.DueDate,
             userId
         );
+
+        if (!succeed)
+            return null;
 
         await _taskItemRepository.SaveChangesAsync();
 
@@ -115,6 +121,9 @@ public class TaskItemService
         if (taskItem is null) 
             return false;
 
+        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
+            return false;
+
         await _taskItemRepository.DeleteTaskItemAsync(taskItem);
         
         return true;
@@ -130,6 +139,9 @@ public class TaskItemService
         var subTaskItem = taskItem.SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
 
         if (subTaskItem is null)
+            return false;
+        
+        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
             return false;
 
         taskItem.SubTaskItems.Remove(subTaskItem);
