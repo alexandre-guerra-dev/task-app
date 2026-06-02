@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Application.Dtos;
 using Api.Src.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Src.Api.Controllers;
@@ -37,6 +38,7 @@ public class TaskItemsController : ControllerBase
         return Ok(taskItem);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateTaskItemRequestDto createDto)
     {
@@ -44,6 +46,7 @@ public class TaskItemsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { taskId = taskItem.Id}, taskItem);
     }
 
+    [Authorize]
     [HttpPost("{taskId:guid}/sub-task-items")]
     public async Task<IActionResult> CreateSubTaskItem([FromRoute] Guid taskId, [FromBody] CreateTaskItemRequestDto createDto)
     {
@@ -55,6 +58,7 @@ public class TaskItemsController : ControllerBase
         return Ok(subTaskItem);
     }
 
+    [Authorize]
     [HttpPut("{taskId:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid taskId, [FromBody] UpdateTaskItemRequestDto updateDto)
     {
@@ -66,6 +70,7 @@ public class TaskItemsController : ControllerBase
         return Ok(task);
     }
 
+    [Authorize]
     [HttpPut("{taskId:guid}/sub-task-items/{subTaskId:guid}")]
     public async Task<IActionResult> UpdateSubTaskItem([FromRoute] Guid taskId, [FromRoute] Guid subTaskId, [FromBody] UpdateTaskItemRequestDto updateDto)
     {
@@ -77,6 +82,7 @@ public class TaskItemsController : ControllerBase
         return Ok(subTask);
     }
 
+    [Authorize]
     [HttpDelete("{taskId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid taskId)
     {
@@ -88,6 +94,7 @@ public class TaskItemsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{taskId:guid}/sub-task-items/{subTaskId:guid}")]
     public async Task<IActionResult> DeleteSubTaskItem([FromRoute] Guid taskId, [FromRoute] Guid subTaskId)
     {
