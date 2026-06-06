@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Domain.Enums;
+using Api.Src.Domain.Exceptions;
 using Api.Src.Infraestructure.Identity;
 
 namespace Api.Src.Domain.Models;
@@ -36,7 +37,7 @@ public class TaskItem
         OwnerId = ownerId;
     }
 
-    public bool Update(
+    public TaskItem Update(
         string newTitle,
         string? newDescription,
         TaskStatusEnum newStatus,
@@ -45,16 +46,14 @@ public class TaskItem
     )
     {
         if (!IsAuthorized(userId))
-            return false;
+            throw new UserUnauthorizedException();
 
-        if (!SetTitle(newTitle))
-            return false;
-
+        SetTitle(newTitle);
         SetDescription(newDescription);
         ChangeStatus(newStatus);
         SetDueDate(newDueDate);
 
-        return true;
+        return this;
     }
 
     public SubTaskItem? UpdateSubTask(
@@ -67,7 +66,7 @@ public class TaskItem
     )
     {
         if (!IsAuthorized(userId))
-            return null;
+            throw new UserUnauthorizedException();
 
         var subTask = SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
 
@@ -84,7 +83,7 @@ public class TaskItem
         return subTask;
     }
 
-    private bool ChangeStatus(TaskStatusEnum newStatus)
+    private void ChangeStatus(TaskStatusEnum newStatus)
     {
         Status = newStatus;
         CompletedAt = null;
@@ -94,33 +93,25 @@ public class TaskItem
             CompletedAt = DateTime.Now;
             foreach (var subTask in SubTaskItems) subTask.ChangeStatus(TaskStatusEnum.Complete);
         }
-
-        return true;
     }
 
-    private bool SetTitle(string newTitle)
+    private void SetTitle(string newTitle)
     {
         if (newTitle.Length < 3)
-            return false;
+            throw new TaskTitleValidationException();
 
         Title = newTitle;
-
-        return true;
     }
 
-    private bool SetDescription(string? newDescription)
+    private void SetDescription(string? newDescription)
     {
         Description = newDescription;
-
-        return true;
     }
 
 
-    private bool SetDueDate(DateTime? newDueDate)
+    private void SetDueDate(DateTime? newDueDate)
     {
         DueDate = newDueDate;
-
-        return true;
     }
 
     public bool IsAuthorized(Guid userId) => userId == OwnerId;

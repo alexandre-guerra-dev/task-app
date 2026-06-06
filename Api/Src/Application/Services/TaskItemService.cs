@@ -72,16 +72,13 @@ public class TaskItemService
         if (taskItem is null)
             return null;
         
-        var succeed = taskItem.Update(
+        taskItem.Update(
             updateDto.Title,
             updateDto.Description,
             updateDto.Status,
             updateDto.DueDate,
             userId
         );
-
-        if (!succeed)
-            return null;
 
         await _taskItemRepository.SaveChangesAsync();
 

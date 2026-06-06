@@ -18,27 +18,59 @@ public class AppExceptionHandlerMiddleware(RequestDelegate next)
         }
         catch (BusinessException ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status422UnprocessableEntity, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status422UnprocessableEntity,
+                ex.Message
+            );
         }
         catch (ConflictException ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status409Conflict, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status409Conflict,
+                ex.Message
+            );
         }
         catch (ForbidException ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status403Forbidden, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status403Forbidden,
+                ex.Message
+            );
         }
         catch (NotFoundException ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status404NotFound, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status404NotFound, 
+                ex.Message
+            );
         }
         catch (UnauthorizedException ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status401Unauthorized, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status401Unauthorized, 
+                ex.Message
+            );
+        }
+        catch (ValidationException ex)
+        {
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status400BadRequest, 
+                ex.Message
+            );
         }
         catch (Exception ex)
         {
-            await WriteResponseAsync(context, StatusCodes.Status500InternalServerError, ex.Message);
+            await WriteResponseAsync(
+                context,
+                StatusCodes.Status500InternalServerError, 
+                ex.Message
+            );
         }
     }
 

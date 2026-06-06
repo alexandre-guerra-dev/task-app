@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Domain.Enums;
+using Api.Src.Domain.Exceptions;
 
 namespace Api.Src.Domain.Models;
 
@@ -30,55 +31,45 @@ public class SubTaskItem
         TaskItemParentId = taskItemParentId;
     }
 
-    public bool Update(
+    public SubTaskItem Update(
         string newTitle,
         string? newDescription,
         TaskStatusEnum newStatus,
         DateTime? newDueDate
     )
     {
-        if (!SetTitle(newTitle))
-            return false;
-        
+        SetTitle(newTitle);
         SetDescription(newDescription);
         ChangeStatus(newStatus);
         SetDueDate(newDueDate);
 
-        return true;
+        return this;
     }
 
-    private bool SetTitle(string newTitle)
+    private void SetTitle(string newTitle)
     {
         if (newTitle.Length < 3)
-            return false;
+            throw new TaskTitleValidationException();
 
         Title = newTitle;
-
-        return true;
     }
 
-    private bool SetDescription(string? newDescription)
+    private void SetDescription(string? newDescription)
     {
         Description = newDescription;
-
-        return true;
     }
 
-    public bool ChangeStatus(TaskStatusEnum newStatus)
+    public void ChangeStatus(TaskStatusEnum newStatus)
     {
         Status = newStatus;
         CompletedAt = null;
 
         if (newStatus == TaskStatusEnum.Complete)
             CompletedAt = DateTime.Now;
-
-        return true;
     }
 
-    private bool SetDueDate(DateTime? newDueDate)
+    private void SetDueDate(DateTime? newDueDate)
     {
         DueDate = newDueDate;
-
-        return true;
     }
 }
