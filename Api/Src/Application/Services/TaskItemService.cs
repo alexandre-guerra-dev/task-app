@@ -51,7 +51,7 @@ public class TaskItemService
         if (taskItem is null)
             return null;
 
-        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
+        if (!taskItem.HasPermission(_userContext.CurrentUserId))
             return null;
 
         SubTaskItem subTaskItem = new(createDto.Title, createDto.Description, createDto.DueDate, taskId);
@@ -118,7 +118,7 @@ public class TaskItemService
         if (taskItem is null) 
             return false;
 
-        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
+        if (!taskItem.HasPermission(_userContext.CurrentUserId))
             return false;
 
         await _taskItemRepository.DeleteTaskItemAsync(taskItem);
@@ -138,7 +138,7 @@ public class TaskItemService
         if (subTaskItem is null)
             return false;
         
-        if (!taskItem.IsAuthorized(_userContext.CurrentUserId))
+        if (!taskItem.HasPermission(_userContext.CurrentUserId))
             return false;
 
         taskItem.SubTaskItems.Remove(subTaskItem);

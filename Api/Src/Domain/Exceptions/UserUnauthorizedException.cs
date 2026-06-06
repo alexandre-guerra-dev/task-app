@@ -6,4 +6,4 @@ using Api.Src.Shared;
 
 namespace Api.Src.Domain.Exceptions;
 
-public sealed class UserUnauthorizedException() : UnauthorizedException("User not allowed.");
+public sealed class UserForbiddenException() : ForbiddenException("User not allowed.");

@@ -32,7 +32,7 @@ public class AppExceptionHandlerMiddleware(RequestDelegate next)
                 ex.Message
             );
         }
-        catch (ForbidException ex)
+        catch (ForbiddenException ex)
         {
             await WriteResponseAsync(
                 context,

@@ -45,8 +45,8 @@ public class TaskItem
         Guid userId
     )
     {
-        if (!IsAuthorized(userId))
-            throw new UserUnauthorizedException();
+        if (!HasPermission(userId))
+            throw new UserForbiddenException();
 
         SetTitle(newTitle);
         SetDescription(newDescription);
@@ -65,8 +65,8 @@ public class TaskItem
         Guid userId
     )
     {
-        if (!IsAuthorized(userId))
-            throw new UserUnauthorizedException();
+        if (!HasPermission(userId))
+            throw new UserForbiddenException();
 
         var subTask = SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
 
@@ -114,5 +114,5 @@ public class TaskItem
         DueDate = newDueDate;
     }
 
-    public bool IsAuthorized(Guid userId) => userId == OwnerId;
+    public bool HasPermission(Guid userId) => userId == OwnerId;
 }

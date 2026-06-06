@@ -5,4 +5,4 @@ using System.Threading.Tasks;
 
 namespace Api.Src.Shared;
 
-public abstract class ForbidException(string message) : Exception(message);
+public abstract class ForbiddenException(string message) : Exception(message);
