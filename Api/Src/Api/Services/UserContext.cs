@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Api.Src.Api.Exceptions;
 using Api.Src.Application.Interfaces;
 
 namespace Api.Src.Api.Services;
@@ -25,7 +26,7 @@ public class UserContext : IUserContext
             if (Guid.TryParse(userId, out var userGuid))
                 return userGuid;
 
-            return Guid.Empty;
+            throw new UserUnauthorizedException();
         }
     }
 }

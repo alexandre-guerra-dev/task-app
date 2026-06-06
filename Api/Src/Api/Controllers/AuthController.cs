@@ -68,9 +68,9 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult GetMe()
+    public async Task<IActionResult> GetMe()
     {
-        var user = _userManager.GetUserAsync(HttpContext.User);
+        var user = await _userManager.GetUserAsync(HttpContext.User);
 
         return Ok(user);
     }

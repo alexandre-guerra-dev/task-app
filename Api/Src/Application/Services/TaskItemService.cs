@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Src.Application.Dtos;
+using Api.Src.Application.Exceptions;
 using Api.Src.Application.Interfaces;
 using Api.Src.Application.Mappers;
+using Api.Src.Domain.Exceptions;
 using Api.Src.Domain.Models;
 using Api.Src.Infraestructure.Repositories;
 
@@ -24,6 +26,10 @@ public class TaskItemService
     public async Task<TaskItemResponseDto?> GetByIdAsync(Guid taskId)
     {
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
+
+        if (taskItem is null)
+            throw new TaskItemNotFoundException(taskId);
+        
         return taskItem?.ToResponseDto();
     }
 
@@ -49,10 +55,10 @@ public class TaskItemService
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
-            return null;
+            throw new TaskItemNotFoundException(taskId);
 
         if (!taskItem.HasPermission(_userContext.CurrentUserId))
-            return null;
+            throw new UserForbiddenException();
 
         SubTaskItem subTaskItem = new(createDto.Title, createDto.Description, createDto.DueDate, taskId);
 
@@ -70,7 +76,7 @@ public class TaskItemService
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
-            return null;
+            throw new TaskItemNotFoundException(taskId);
         
         taskItem.Update(
             updateDto.Title,
@@ -92,7 +98,7 @@ public class TaskItemService
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
-            return null;
+            throw new TaskItemNotFoundException(taskId);
 
         var subTaskItem = taskItem.UpdateSubTask(
             subTaskId,
@@ -104,7 +110,7 @@ public class TaskItemService
         );
 
         if (subTaskItem is null)
-            return null;
+            throw new SubTaskItemNotFoundException(taskId);
 
         await _taskItemRepository.SaveChangesAsync();
 
@@ -116,10 +122,10 @@ public class TaskItemService
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null) 
-            return false;
+            throw new TaskItemNotFoundException(taskId);
 
         if (!taskItem.HasPermission(_userContext.CurrentUserId))
-            return false;
+            throw new UserForbiddenException();
 
         await _taskItemRepository.DeleteTaskItemAsync(taskItem);
         
@@ -131,15 +137,15 @@ public class TaskItemService
         var taskItem = await _taskItemRepository.GetTaskItemByIdAsync(taskId);
 
         if (taskItem is null)
-            return false;
+            throw new TaskItemNotFoundException(taskId);
 
         var subTaskItem = taskItem.SubTaskItems.FirstOrDefault(st => st.Id == subTaskId);
 
         if (subTaskItem is null)
-            return false;
+            throw new SubTaskItemNotFoundException(subTaskId);
         
         if (!taskItem.HasPermission(_userContext.CurrentUserId))
-            return false;
+            throw new UserForbiddenException();
 
         taskItem.SubTaskItems.Remove(subTaskItem);
 
