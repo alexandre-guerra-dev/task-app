@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Api.Src.Api.Dtos;
 using Api.Src.Infraestructure.Identity;
+using Api.Src.Infraestructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,13 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
+    private readonly JwtTokenService _jwtTokenService;
 
-    public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+    public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, JwtTokenService jwtTokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _jwtTokenService = jwtTokenService;
     }
 
     [HttpPost("register")]
@@ -38,7 +41,7 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        return NoContent();
+        return Ok(new { TokenJwt = _jwtTokenService.GenerateToken(user!) });
     }
 
     [HttpPost("login")]
@@ -54,7 +57,9 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return Unauthorized("Email or Password incorrect.");
 
-        return NoContent();
+        var user = await _userManager.GetUserAsync(User);
+
+        return Ok(new { TokenJwt = _jwtTokenService.GenerateToken(user!) });
     }
 
     [Authorize]
