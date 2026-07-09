@@ -1,6 +1,7 @@
 using Api.Src.Domain.Enums;
 using Api.Src.Domain.Exceptions;
 using Api.Src.Infraestructure.Identity;
+using backend.Src.Domain.Entities;
 
 namespace Api.Src.Domain.Entities;
 
@@ -21,6 +22,8 @@ public class TaskItem
 
     // TODO: Implementar lista de sub tarefas apenas de leitura e métodos de adição, que verifique se a tarefa está concluída e refleta na sub tarefa, e remoção
     public List<SubTaskItem> SubTaskItems { get; private set; } = [];
+
+    public List<Category> Categories { get; private set; } = [];
 
     public TaskItem(string title, string? description, DateTime? dueDate, Guid ownerId)
     {
