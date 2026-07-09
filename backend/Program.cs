@@ -7,6 +7,8 @@ using Api.Src.Infraestructure.Database;
 using Api.Src.Infraestructure.Identity;
 using Api.Src.Infraestructure.Repositories;
 using Api.Src.Infraestructure.Services;
+using backend.Src.Application.Services;
+using backend.Src.Infraestructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +36,13 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(opt =>
+    {
+        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Processo de Autenticação default
+        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Resposta caso não esteja autenticado
+        opt.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme; // Resposta caso não possua permissão
+        opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new()
@@ -56,10 +64,11 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddScoped<TaskItemRepository>()
+    .AddScoped<CategoryRepository>()
     .AddScoped<TaskItemService>()
-    .AddTransient<JwtTokenService>();
-
-builder.Services.AddScoped<IUserContext, UserContext>();
+    .AddScoped<CategoryService>()
+    .AddTransient<JwtTokenService>()
+    .AddScoped<IUserContext, UserContext>();
 
 builder.Services.AddControllers();
 

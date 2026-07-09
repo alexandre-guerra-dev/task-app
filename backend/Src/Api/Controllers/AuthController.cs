@@ -42,19 +42,21 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginDto)
     {
-        var result = await _signInManager.PasswordSignInAsync(
-            loginDto.Email,
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+        if (user is null)
+            return Unauthorized("Email or Password incorrect.");
+
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            user,
             loginDto.Password,
-            isPersistent: true,
             lockoutOnFailure: false
         );
 
         if (!result.Succeeded)
             return Unauthorized("Email or Password incorrect.");
 
-        var user = await _userManager.GetUserAsync(User);
-
-        return Ok(new { TokenJwt = _jwtTokenService.GenerateToken(user!) });
+        return Ok(new { TokenJwt = _jwtTokenService.GenerateToken(user) });
     }
 
     [Authorize]
@@ -70,6 +72,8 @@ public class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
+        Console.WriteLine("User");
+        
         var user = await _userManager.GetUserAsync(HttpContext.User);
 
         return Ok(user);
