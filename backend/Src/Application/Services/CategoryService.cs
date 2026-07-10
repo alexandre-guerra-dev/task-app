@@ -8,6 +8,7 @@ using backend.Src.Api.Dtos.Categories;
 using backend.Src.Application.Exceptions;
 using backend.Src.Application.Mappers;
 using backend.Src.Domain.Entities;
+using backend.Src.Domain.Exceptions;
 using backend.Src.Infraestructure.Repositories;
 
 namespace backend.Src.Application.Services;
@@ -41,6 +42,11 @@ public class CategoryService
     public async Task<CategoryResponseDto> CreateAsync(CreateCategoryRequestDto createDto)
     {
         var userId = _userContext.CurrentUserId;
+
+        var categories = await _categoryRepository.GetAllMyAsync(userId);
+
+        if (categories.Any(c => c.Name == createDto.Name))
+            throw new CategoryAlreadyExistsException(createDto.Name);
 
         Category category = new(createDto.Name, userId);
 
