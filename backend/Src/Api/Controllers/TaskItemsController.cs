@@ -1,6 +1,7 @@
 using Api.Src.Api.Dtos.SubTasks;
 using Api.Src.Api.Dtos.Tasks;
 using Api.Src.Application.Services;
+using backend.Src.Api.Dtos.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,14 @@ public class TaskItemsController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var taskItems = await _taskItemService.GetAllAsync();
+        return Ok(taskItems);
+    }
+
+    [Authorize]
+    [HttpGet("my")]
+    public async Task<IActionResult> GetAllMy()
+    {
+        var taskItems = await _taskItemService.GetAllMyAsync();
         return Ok(taskItems);
     }
 
@@ -65,6 +74,14 @@ public class TaskItemsController : ControllerBase
     {
         var subTask = await _taskItemService.UpdateSubTaskItemAsync(taskId, subTaskId, updateDto);
         return Ok(subTask);
+    }
+
+    [Authorize]
+    [HttpPut("{taskId:guid}/categories")]
+    public async Task<IActionResult> UpdateCategories([FromRoute] Guid taskId, [FromBody] UpdateCategoriesRequestDto updateDto)
+    {
+        var task = await _taskItemService.UpdateCategoriesAsync(taskId, updateDto);
+        return Ok(task);
     }
 
     [Authorize]

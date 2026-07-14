@@ -22,19 +22,27 @@ public class CategoryRepository
         return await _dbContext.Categories
             .FirstOrDefaultAsync(c => c.Id == categoryId);
     }
-    
+
+    public async Task<IEnumerable<Category>> GetByIdAsync(IEnumerable<Guid> categoryIds)
+    {
+        return await _dbContext.Categories
+            .Where(category =>
+                categoryIds.Any(categoryId => category.Id == categoryId))
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Category>> GetAllAsync()
     {
         var categories = _dbContext.Categories.AsNoTracking();
         return categories;
     }
 
-    public async Task<IEnumerable<Category>> GetAllMyAsync(Guid ownerId)
+    public async Task<IEnumerable<Category>> GetAllOfUserAsync(Guid userId)
     {
         var categories = _dbContext.Categories
-            .Where(c => c.OwnerId == ownerId)
+            .Where(c => c.OwnerId == userId)
             .AsNoTracking();
-            
+
         return categories;
     }
 
@@ -43,7 +51,7 @@ public class CategoryRepository
         await _dbContext.Categories.AddAsync(category);
         await SaveChangesAsync();
     }
-    
+
     public async Task DeleteAsync(Category category)
     {
         _dbContext.Categories.Remove(category);

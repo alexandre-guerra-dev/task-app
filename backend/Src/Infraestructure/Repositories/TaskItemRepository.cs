@@ -16,6 +16,16 @@ public class TaskItemRepository
     {
         return _dbContext.TaskItems
             .Include(task => task.SubTaskItems)
+            .Include(task => task.Categories)
+            .AsNoTracking();
+    }
+
+    public IEnumerable<TaskItem> GetAllOfUser(Guid userId)
+    {
+        return _dbContext.TaskItems
+            .Where(task => task.OwnerId == userId)
+            .Include(task => task.SubTaskItems)
+            .Include(task => task.Categories)
             .AsNoTracking();
     }
 
@@ -23,6 +33,7 @@ public class TaskItemRepository
     {
         return await _dbContext.TaskItems
             .Include(task => task.SubTaskItems)
+            .Include(task => task.Categories)
             .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 

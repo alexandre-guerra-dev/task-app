@@ -1,6 +1,7 @@
 using Api.Src.Api.Dtos.SubTasks;
 using Api.Src.Api.Dtos.Tasks;
 using Api.Src.Domain.Entities;
+using backend.Src.Application.Mappers;
 
 namespace Api.Src.Application.Mappers;
 
@@ -17,6 +18,7 @@ public static class TaskItemMapper
             model.CreatedAt,
             model.DueDate,
             model.CompletedAt,
+            model.Categories.Select(c => c.ToResponseDto()),
             model.SubTaskItems.Select(st => st.ToResponseDto())
         );
     }

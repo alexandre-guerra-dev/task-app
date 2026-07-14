@@ -34,7 +34,7 @@ public class CategoryService
     {
         var userId = _userContext.CurrentUserId;
 
-        var categories = await _categoryRepository.GetAllMyAsync(userId);
+        var categories = await _categoryRepository.GetAllOfUserAsync(userId);
         
         return categories.Select(c => c.ToResponseDto());
     }
@@ -43,7 +43,7 @@ public class CategoryService
     {
         var userId = _userContext.CurrentUserId;
 
-        var categories = await _categoryRepository.GetAllMyAsync(userId);
+        var categories = await _categoryRepository.GetAllOfUserAsync(userId);
 
         if (categories.Any(c => c.Name == createDto.Name))
             throw new CategoryAlreadyExistsException(createDto.Name);
@@ -61,6 +61,11 @@ public class CategoryService
 
         if (category is null)
             throw new CategoryNotFoundException(categoryId);
+
+        var categories = await _categoryRepository.GetAllOfUserAsync(_userContext.CurrentUserId);
+
+        if (categories.Any(c => c.Name == updateDto.Name))
+            throw new CategoryAlreadyExistsException(updateDto.Name);
 
         category.Update(updateDto.Name, _userContext.CurrentUserId);
 
